@@ -1,6 +1,5 @@
 {
   "version": "2.0.0",
-  // Mirrors .github/workflows/ci.yml step for step.
   "tasks": [
     {
       "label": "lint",
