@@ -10,11 +10,15 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.1",
     "cryptography>=50.0.2",
+    "fastapi>=0.162.2",
+    "httpx>=0.28.1",
+    "msal>=1.39.0",
     "sqlalchemy>=2.1.8",
+    "uvicorn>=0.54.0",
 ]
 
 [project.scripts]
-lteann = "lteann:main"
+lteann = "lteann.app:main"
 
 [build-system]
 requires = ["uv_build>=0.12.15,<0.13.0"]
@@ -23,6 +27,8 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "basedpyright>=1.40.2",
+    "httpx>=0.28.1",
+    "httpx2>=2.16.0",
     "pytest>=9.2.0",
     "ruff>=0.17.4",
 ]

@@ -25,7 +25,7 @@ class FakeIdentity:
     def finish(self, flow: Flow, query: dict[str, str]) -> tuple[Principal, Grant]:
         if query.get("state") != flow.get("state") or query.get("code") != "ok":
             raise AuthError("state or code mismatch")
-        blob = {"subject": self.principal.subject}
+        blob: Blob = {"subject": self.principal.subject}
         return self.principal, Grant(f"token:{self.principal.subject}", FAR_FUTURE, blob)
 
 

@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from lteann!")
+"""CalendarSync rewrite: school notices -> a student's calendar."""

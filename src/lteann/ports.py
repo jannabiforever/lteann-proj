@@ -9,12 +9,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Protocol
+from typing import Protocol
 
 from .domain import Event, EventDraft, Notice, Scope
 
-Flow = dict[str, Any]  # opaque, server-side only; never sent to the browser
-Blob = dict[str, Any]  # opaque provider credential; stored encrypted by the repository
+Flow = dict[str, object]  # opaque, server-side only; never sent to the browser
+Blob = dict[str, object]  # opaque provider credential; the repository stores it encrypted
 
 
 class AuthError(Exception):

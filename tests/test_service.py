@@ -1,64 +1,14 @@
 """Use-case tests: fakes for providers, a real SQLite repository underneath."""
 
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, datetime, time, timedelta
 
 import pytest
-from cryptography.fernet import Fernet
+from conftest import ALL, CLS, POSTED, TOKEN, D
 
-from lteann.adapters.fakes import FakeCredentials, FakeExtractor, FakeIdentity, FakeSource
-from lteann.adapters.repo import Conflict, Repository
-from lteann.domain import EventDraft, Kind, Notice, Period, Preferences, Scope, TaskDraft
-from lteann.ports import AccessDenied, Principal
-from lteann.service import NotFound, Policy, Service
-
-ME = Principal("https://issuer.example", "sub-1", "학생", "s1@example.invalid")
-TOKEN = "token:sub-1"
-CLS = Scope("c1", "fake", "학급 공지")
-ALL = Scope("c2", "fake", "전교 공지")
-D = date(2026, 11, 8)
-POSTED = datetime(2026, 11, 1, tzinfo=UTC)
-
-
-class World:
-    def __init__(self, tmp_path):
-        self.clock = datetime(2026, 11, 8, 9, 0, tzinfo=UTC)
-        self.repo = Repository(
-            tmp_path / "s.sqlite3", Fernet.generate_key().decode(), now=lambda: self.clock
-        )
-        self.repo.initialize()
-        self.source, self.extractor = FakeSource(), FakeExtractor()
-        self.source.grant(TOKEN, CLS)
-        self.source.grant(TOKEN, ALL)
-        self.ids = iter(f"id{i}" for i in range(1000))
-        self.svc = Service(
-            self.repo,
-            FakeIdentity(ME),
-            FakeCredentials(now=lambda: self.clock),
-            self.source,
-            self.extractor,
-            Policy(),
-            now=lambda: self.clock,
-            new_id=lambda: next(self.ids),
-        )
-
-    def sign_in(self) -> tuple[str, str]:
-        url, ref = self.svc.start_sign_in("https://app/cb")
-        state = url.split("state=")[1].split("&")[0]
-        session = self.svc.finish_sign_in(ref, {"state": state, "code": "ok"})
-        user = self.svc.current_user(session)
-        assert user is not None
-        return session, user.id
-
-    def post(self, notice_id, text, drafts, scope=CLS, images=()):
-        self.source.posts.setdefault(scope.id, []).append(
-            Notice(notice_id, scope.id, text, tuple(images), POSTED)
-        )
-        self.extractor.drafts[notice_id] = drafts
-
-
-@pytest.fixture
-def w(tmp_path):
-    return World(tmp_path)
+from lteann.adapters.repo import Conflict
+from lteann.domain import EventDraft, Kind, Notice, Period, Preferences, TaskDraft
+from lteann.ports import AccessDenied
+from lteann.service import NotFound
 
 
 def draft(title="물리 보고서", day=D, at=time(18, 0), kind: Kind = "assignment", matches=None):

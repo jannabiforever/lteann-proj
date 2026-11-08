@@ -40,7 +40,10 @@ class NotFound(Exception):
 class Policy:
     session_ttl: timedelta = timedelta(hours=8)
     flow_ttl: timedelta = timedelta(minutes=10)
-    membership_max_age: timedelta = timedelta(hours=6)
+    membership_max_age: timedelta = timedelta(hours=6)  # after this, scopes stop being readable
+    membership_refresh_after: timedelta = timedelta(
+        hours=1
+    )  # lazy re-check on an authenticated request
     refresh_margin: timedelta = timedelta(minutes=2)
 
 
@@ -142,6 +145,18 @@ class Service:
             raise
         self.repo.set_memberships(user_id, self.source.provider, scopes)
         return scopes
+
+    def ensure_fresh_memberships(self, user_id: str) -> None:
+        """Re-verify on request once memberships are older than refresh_after.
+
+        Only active users pay the Graph call. Raises AccessDenied when the
+        provider no longer honours the credential, so the caller can ask for re-login.
+        ponytail: a user with zero scopes re-verifies on every request; add a
+        last_verified column if that ever shows up in Graph throttling.
+        """
+        newest = max((m.verified_at for m in self.repo.memberships(user_id)), default=None)
+        if newest is None or self.now() - newest > self.policy.membership_refresh_after:
+            self.verify_memberships(user_id)
 
     def readable_scopes(self, user_id: str) -> list[Scope]:
         now, max_age = self.now(), self.policy.membership_max_age
