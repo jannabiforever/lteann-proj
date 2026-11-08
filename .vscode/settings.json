@@ -1,0 +1,20 @@
+{
+  // Same toolchain as Zed and CI: ruff + basedpyright, both from the uv-managed .venv.
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.languageServer": "None", // basedpyright extension replaces Pylance
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["tests"],
+
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": "explicit",
+    },
+  },
+
+  // Use the versions pinned in pyproject's dev group, not the extensions' bundled binaries.
+  "ruff.importStrategy": "fromEnvironment",
+  "basedpyright.importStrategy": "fromEnvironment",
+  // typeCheckingMode and rule selection come from [tool.basedpyright] / [tool.ruff] in pyproject.toml
+}

@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  // Mirrors .github/workflows/ci.yml step for step.
+  "tasks": [
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "uv run ruff check .",
+      "problemMatcher": [],
+    },
+    {
+      "label": "format",
+      "type": "shell",
+      "command": "uv run ruff format .",
+      "problemMatcher": [],
+    },
+    {
+      "label": "typecheck",
+      "type": "shell",
+      "command": "uv run basedpyright",
+      "problemMatcher": [],
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "uv run pytest -q",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": [],
+    },
+    {
+      "label": "check all",
+      "dependsOrder": "sequence",
+      "dependsOn": ["lint", "typecheck", "test"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": [],
+    },
+    {
+      "label": "db: upgrade",
+      "type": "shell",
+      "command": "uv run alembic upgrade head",
+      "problemMatcher": [],
+    },
+  ],
+}
