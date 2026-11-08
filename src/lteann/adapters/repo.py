@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import secrets
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
@@ -75,7 +75,7 @@ class Repository:
     # --- plumbing -------------------------------------------------------------
 
     @contextmanager
-    def session(self) -> Iterator[Session]:
+    def session(self) -> Generator[Session]:
         """One transaction: commits on success, rolls back on any exception."""
         with Session(self.engine) as s, s.begin():
             yield s
